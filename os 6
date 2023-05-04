@@ -1,0 +1,99 @@
+#include <stdio.h>
+
+void calculateNeed(int need[][3], int max[][3], int allocation[][3]);
+void isDeadlock(int allocation[][3], int available[], int need[][3]);
+
+int main()
+{
+    int allocation[3][3], max[3][3], need[3][3], available[3];
+    int i, j;
+
+    printf("Enter allocation matrix:\n");
+    for(i=0;i<3;i++)
+    {
+        for(j=0;j<3;j++)
+        {
+            scanf("%d", &allocation[i][j]);
+        }
+    }
+
+    printf("Enter maximum matrix:\n");
+    for(i=0;i<3;i++)
+    {
+        for(j=0;j<3;j++)
+        {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    printf("Enter available matrix:\n");
+    for(i=0;i<3;i++)
+    {
+        scanf("%d", &available[i]);
+    }
+
+    calculateNeed(need, max, allocation);
+    isDeadlock(allocation, available, need);
+
+    return 0;
+}
+
+void calculateNeed(int need[][3], int max[][3], int allocation[][3])
+{
+    int i, j;
+    for(i=0;i<3;i++)
+    {
+        for(j=0;j<3;j++)
+        {
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+}
+
+void isDeadlock(int allocation[][3], int available[], int need[][3])
+{
+    int finish[3] = {0};
+    int work[3], i, j, k;
+    int safeSeq[3], count=0;
+
+    for(i=0;i<3;i++)
+    {
+        work[i] = available[i];
+    }
+
+    while(count<3)
+    {
+        int found = 0;
+        for(i=0;i<3;i++)
+        {
+            if(finish[i] == 0)
+            {
+                int j;
+                for(j=0;j<3;j++)
+                {
+                    if(need[i][j] > work[j])
+                    {
+                        break;
+                    }
+                }
+                if(j==3)
+                {
+                    for(k=0;k<3;k++)
+                    {
+                        work[k] += allocation[i][k];
+                    }
+                    safeSeq[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                }
+            }
+        }
+        if(found == 0)
+        {
+            printf("System is in deadlock.\n");
+            return;
+        }
+    }
+
+    printf("System is not in deadlock.\n");
+}
