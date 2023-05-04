@@ -1,0 +1,81 @@
+#include<stdio.h>
+
+void main() {
+    int processes, resources;
+    printf("Enter the number of processes: ");
+    scanf("%d", &processes);
+    printf("Enter the number of resources: ");
+    scanf("%d", &resources);
+
+    // declare the allocation, max and need matrices
+    int allocation[processes][resources], max[processes][resources], need[processes][resources];
+    int available[resources], work[resources], finish[processes];
+
+    // initialize finish array to 0
+    for(int i = 0; i < processes; i++) {
+        finish[i] = 0;
+    }
+
+    // input the allocation matrix
+    printf("Enter the allocation matrix:\n");
+    for(int i = 0; i < processes; i++) {
+        for(int j = 0; j < resources; j++) {
+            scanf("%d", &allocation[i][j]);
+        }
+    }
+
+    // input the max matrix
+    printf("Enter the max matrix:\n");
+    for(int i = 0; i < processes; i++) {
+        for(int j = 0; j < resources; j++) {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    // calculate the need matrix
+    for(int i = 0; i < processes; i++) {
+        for(int j = 0; j < resources; j++) {
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+
+    // input the available matrix
+    printf("Enter the available matrix:\n");
+    for(int i = 0; i < resources; i++) {
+        scanf("%d", &available[i]);
+        work[i] = available[i];
+    }
+
+    // check if the system is in safe state
+    int count = 0;
+    while(count < processes) {
+        int safe = 0;
+        for(int i = 0; i < processes; i++) {
+            if(finish[i] == 0) {
+                int flag = 1;
+                for(int j = 0; j < resources; j++) {
+                    if(need[i][j] > work[j]) {
+                        flag = 0;
+                        break;
+                    }
+                }
+                if(flag) {
+                    for(int j = 0; j < resources; j++) {
+                        work[j] += allocation[i][j];
+                    }
+                    finish[i] = 1;
+                    safe = 1;
+                    count++;
+                    printf("Process %d executed\n", i);
+                    break;
+                }
+            }
+        }
+        if(!safe) {
+            printf("The system is in unsafe state\n");
+            return;
+        }
+    }
+
+    printf("The system is in safe state\n");
+}
