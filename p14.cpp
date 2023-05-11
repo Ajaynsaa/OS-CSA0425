@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define NUM_FRAMES 3
+
+int main() {
+    int pages[] = {7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1};
+    int num_pages = sizeof(pages) / sizeof(int);
+
+    int frames[NUM_FRAMES];
+    int num_faults = 0;
+    int i, j, k;
+
+    // Initialize frames to -1 to represent empty slots
+    for (i = 0; i < NUM_FRAMES; i++) {
+        frames[i] = -1;
+    }
+
+    // Iterate over the page reference sequence
+    for (i = 0; i < num_pages; i++) {
+        bool page_found = false;
+
+        // Check if page is already in a frame
+        for (j = 0; j < NUM_FRAMES; j++) {
+            if (frames[j] == pages[i]) {
+                page_found = true;
+
+                // Shift all frames up to make this the most recently used
+                for (k = j; k > 0; k--) {
+                    frames[k] = frames[k-1];
+                }
+                frames[0] = pages[i];
+
+                break;
+            }
+        }
+
+        // If page is not in a frame, replace the least recently used
+        if (!page_found) {
+            num_faults++;
+
+            // Shift all frames up to make the last one the least recently used
+            for (j = NUM_FRAMES - 1; j > 0; j--) {
+                frames[j] = frames[j-1];
+            }
+
+            // Add new page to the first (most recently used) frame
+            frames[0] = pages[i];
+        }
+
+        // Print the current state of the frames after each page reference
+        printf("%d: ", pages[i]);
+        for (j = 0; j < NUM_FRAMES; j++) {
+            if (frames[j] == -1) {
+                printf("[ ] ");
+            } else {
+                printf("[%d] ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Number of page faults: %d\n", num_faults);
+
+    return 0;
+}
+
